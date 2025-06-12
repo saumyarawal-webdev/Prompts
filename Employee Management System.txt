@@ -1,0 +1,43 @@
+Employee Management System:
+
+Hierarchy:
+
+Company Admin
+
+Employees can make accounts using company name.
+
+
+Admin can make teams, of their company employee accounts. and can assign team leaders, there can be multiple team leaders in a team.
+
+Admin of Company panel (sidebar):
+Manage Teams
+
+Manage Employees (edit role, team)
+
+
+Team Leader Panel: (side bar)
+
+	Manage Team Members
+
+	Assign Tasks (also have filter : user)
+
+	Leav Requests
+
+        Salary Payroll (payment gateway integration for paying salary)
+
+	Daily Log : includes log of log in logout details of daily bases of each employee.
+
+	Download monthly attendence report
+
+	Check In button (toggle check in check out) will count time of total hours completed (comman in all users) 
+
+	Logout button
+
+
+Team Member Panel (Sidebar):
+	
+	Tasks (filters : pending tasks, completed tasks, high priority tasks)
+
+	Request for Leav
+
+        Salary Status
