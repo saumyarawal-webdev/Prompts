@@ -2,6 +2,10 @@ Employee Management System:
 
 Hierarchy:
 
+Super Admin :
+
+	Manage Companies
+
 Company Admin
 
 Employees can make accounts using company name.
@@ -23,7 +27,7 @@ Team Leader Panel: (side bar)
 
 	Leav Requests
 
-        Salary Payroll (payment gateway integration for paying salary)
+    Salary Payroll (payment gateway integration for paying salary)
 
 	Daily Log : includes log of log in logout details of daily bases of each employee.
 
@@ -40,4 +44,4 @@ Team Member Panel (Sidebar):
 
 	Request for Leav
 
-        Salary Status
+    Salary Status
