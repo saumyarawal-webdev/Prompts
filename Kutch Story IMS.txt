@@ -29,7 +29,7 @@ when selected its price automatically appears.
 
 and when all items are included then grand total will be generated.
 
-
+pdf of bill can be downloaded with name of kutchstory<bill no. suffix>
 
 This system will have login/logout functions but not the sign up.
 
