@@ -1,6 +1,7 @@
 Purpose :
 Inventory Management System for Clothing and Jwellery with Integrated Billing System.
 
+Brand Name : The Kutch Story
 Inventory Management System includes:
 
 Sr No. ,
