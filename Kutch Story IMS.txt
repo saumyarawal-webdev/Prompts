@@ -39,6 +39,7 @@ This system will have login/logout functions but not the sign up.
 
 when the site is opened or inventory is tried to manage in offline state, then it should display "offline", please connect to network.
 
+so the system will have sidebar with current username, Inventory and Billing as menus and logout button.
 
 Color Pallet of this system:
 
