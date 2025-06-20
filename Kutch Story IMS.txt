@@ -1,0 +1,46 @@
+Purpose :
+Inventory Management System for Clothing and Jwellery with Integrated Billing System.
+
+Inventory Management System includes:
+
+Sr No. ,
+Item Name,
+Size,
+Color,
+Product code,
+Dealer Price,
+MRP,
+Special Price/ Retail Price,
+
+(also the modal file of items will have category, so that items can be filtered.)
+
+(add delete items, edit price, quantity)
+
+(search bar for searching items from available on bases of item code or item name)
+
+Integrated Billing Management System work flow:
+
+(add delete items, edit quantity in the bill)
+
+can select item from available items in inventory.
+
+when selected its price automatically appears.
+
+and when all items are included then grand total will be generated.
+
+
+
+This system will have login/logout functions but not the sign up.
+
+(as i will generate limited users, and it is for local use.)
+
+(we will use NextJs, Tailwind, Typescript, and mongodb atlas.)
+
+when the site is opened or inventory is tried to manage in offline state, then it should display "offline", please connect to network.
+
+
+Color Pallet of this system:
+
+Primary: #F0EAD0
+Secondary : #C3272B
+Third: #040404
