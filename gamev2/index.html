@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detective Mystery Game</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Courier New", monospace;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        overflow: hidden;
+        height: 100vh;
+      }
+
+      .intro-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        color: #00ff00;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .intro-text {
+        font-size: clamp(16px, 3vw, 24px);
+        text-align: center;
+        max-width: 90%;
+        line-height: 1.6;
+        margin-bottom: 30px;
+      }
+
+      .typing-effect {
+        border-right: 2px solid #00ff00;
+        padding-right: 5px;
+        animation: blink 1s infinite;
+      }
+
+      @keyframes blink {
+        0%,
+        50% {
+          border-color: #00ff00;
+        }
+        51%,
+        100% {
+          border-color: transparent;
+        }
+      }
+
+      .access-btn {
+        padding: 15px 30px;
+        background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+        border: none;
+        border-radius: 25px;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+      }
+
+      .access-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6);
+      }
+
+      .laptop-container {
+        width: 100%;
+        height: 100vh;
+        display: none;
+        background: #2c3e50;
+        position: relative;
+      }
+
+      .desktop {
+        width: 100%;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .taskbar {
+        height: 60px;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        z-index: 100;
+      }
+
+      .app-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 20px;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+        flex: 1;
+        align-content: start;
+      }
+
+      .app-icon {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .app-icon:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .app-icon .icon {
+        font-size: clamp(32px, 6vw, 48px);
+        margin-bottom: 8px;
+      }
+
+      .app-icon .name {
+        color: white;
+        font-size: clamp(10px, 2vw, 14px);
+        text-align: center;
+      }
+
+      .app-window {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 800px;
+        height: 80%;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        display: none;
+        flex-direction: column;
+        z-index: 200;
+      }
+
+      .window-header {
+        background: #34495e;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .close-btn {
+        background: #e74c3c;
+        border: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .window-content {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+      }
+
+      .file-item,
+      .email-item,
+      .chat-message {
+        background: #f8f9fa;
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-left: 4px solid #3498db;
+      }
+
+      .file-item:hover,
+      .email-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+      }
+
+      .terminal {
+        background: #000;
+        color: #00ff00;
+        padding: 20px;
+        font-family: "Courier New", monospace;
+        height: 100%;
+        overflow-y: auto;
+      }
+
+      .terminal-input {
+        background: transparent;
+        border: none;
+        color: #00ff00;
+        outline: none;
+        font-family: "Courier New", monospace;
+        width: 80%;
+      }
+
+      .browser-url {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 15px;
+      }
+
+      .browser-content {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        min-height: 300px;
+      }
+
+      .shop-item {
+        background: white;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .shop-item.selected {
+        border-color: #27ae60;
+        background: #d5f4e6;
+      }
+
+      .buy-btn {
+        background: #27ae60;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .chat-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-top: 10px;
+      }
+
+      .send-btn {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+
+      .locked-app {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      .password-prompt {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        z-index: 300;
+        display: none;
+      }
+
+      .password-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+
+      .unlock-btn {
+        background: #27ae60;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+      }
+
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #27ae60;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        z-index: 400;
+        display: none;
+      }
+
+      .game-complete {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        color: #00ff00;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 500;
+        text-align: center;
+      }
+
+      @media (max-width: 768px) {
+        .app-grid {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 15px;
+          padding: 15px;
+        }
+
+        .app-window {
+          width: 95%;
+          height: 85%;
+        }
+
+        .window-content {
+          padding: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="intro-screen" id="introScreen">
+      <div class="intro-text">
+        <div class="typing-effect" id="typingText"></div>
+      </div>
+      <button class="access-btn" id="accessBtn" style="display: none">
+        ACCESS CLIENT'S MACHINE
+      </button>
+    </div>
+
+    <div class="laptop-container" id="laptopContainer">
+      <div class="desktop">
+        <div class="app-grid">
+          <div class="app-icon" data-app="files">
+            <div class="icon">🗂️</div>
+            <div class="name">Files</div>
+          </div>
+          <div class="app-icon" data-app="emails">
+            <div class="icon">📧</div>
+            <div class="name">Emails</div>
+          </div>
+          <div class="app-icon" data-app="browser">
+            <div class="icon">🌐</div>
+            <div class="name">Browser</div>
+          </div>
+          <div class="app-icon" data-app="terminal">
+            <div class="icon">💻</div>
+            <div class="name">Terminal</div>
+          </div>
+          <div class="app-icon locked-app" data-app="notes" id="notesApp">
+            <div class="icon">📝</div>
+            <div class="name">Notes (🔒)</div>
+          </div>
+          <div class="app-icon" data-app="shop">
+            <div class="icon">🛍️</div>
+            <div class="name">Shop</div>
+          </div>
+          <div class="app-icon" data-app="chat">
+            <div class="icon">💬</div>
+            <div class="name">Chat</div>
+          </div>
+          <div class="app-icon" data-app="settings">
+            <div class="icon">⚙️</div>
+            <div class="name">Settings</div>
+          </div>
+          <div class="app-icon" data-app="games">
+            <div class="icon">🎮</div>
+            <div class="name">Games</div>
+          </div>
+        </div>
+        <div class="taskbar"></div>
+      </div>
+    </div>
+
+    <!-- App Windows -->
+    <div class="app-window" id="filesWindow">
+      <div class="window-header">
+        <span>📁 Files</span>
+        <button class="close-btn" onclick="closeWindow('filesWindow')">
+          ×
+        </button>
+      </div>
+      <div class="window-content" id="filesContent"></div>
+    </div>
+
+    <div class="app-window" id="emailsWindow">
+      <div class="window-header">
+        <span>📧 Emails</span>
+        <button class="close-btn" onclick="closeWindow('emailsWindow')">
+          ×
+        </button>
+      </div>
+      <div class="window-content" id="emailsContent"></div>
+    </div>
+
+    <div class="app-window" id="browserWindow">
+      <div class="window-header">
+        <span>🌐 Browser</span>
+        <button class="close-btn" onclick="closeWindow('browserWindow')">
+          ×
+        </button>
+      </div>
+      <div class="window-content">
+        <input
+          type="text"
+          class="browser-url"
+          id="browserUrl"
+          placeholder="Enter URL or search term..."
+        />
+        <button
+          onclick="searchBrowser()"
+          style="padding: 10px 15px; margin-bottom: 15px"
+        >
+          Search
+        </button>
+        <div class="browser-content" id="browserContent">
+          <h3>Welcome to SecureNet Browser</h3>
+          <p>Enter a URL or search term to browse the web.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-window" id="terminalWindow">
+      <div class="window-header">
+        <span>💻 Terminal</span>
+        <button class="close-btn" onclick="closeWindow('terminalWindow')">
+          ×
+        </button>
+      </div>
+      <div class="window-content">
+        <div class="terminal" id="terminalContent">
+          <div>Welcome to SecureShell v2.1.4</div>
+          <div>Type 'help' for available commands.</div>
+          <div><br /></div>
+          <div id="terminalOutput"></div>
+          <div style="display: flex; align-items: center">
+            <span>detective@laptop:~$ </span>
+            <input
+              type="text"
+              class="terminal-input"
+              id="terminalInput"
+              onkeypress="handleTerminalInput(event)"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-window" id="notesWindow">
+      <div class="window-header">
+        <span>📝 Notes</span>
+        <button class="close-btn" onclick="closeWindow('notesWindow')">
+          ×
+        </button>
+      </div>
+      <div class="window-content" id="notesContent"></div>
+    </div>
+
+    <div class="app-window" id="shopWindow">
+      <div class="window-header">
+        <span>🛍️ SecureShop</span>
+        <button class="close-btn" onclick="closeWindow('shopWindow')">×</button>
+      </div>
+      <div class="window-content" id="shopContent"></div>
+    </div>
+
+    <div class="app-window" id="chatWindow">
+      <div class="window-header">
+        <span>💬 SecureChat</span>
+        <button class="close-btn" onclick="closeWindow('chatWindow')">×</button>
+      </div>
+      <div class="window-content">
+        <div
+          id="chatMessages"
+          style="
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+          "
+        ></div>
+        <input
+          type="text"
+          class="chat-input"
+          id="chatInput"
+          placeholder="Type a message..."
+        />
+        <button class="send-btn" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <div class="app-window" id="settingsWindow">
+      <div class="window-header">
+        <span>⚙️ Settings</span>
+        <button class="close-btn" onclick="closeWindow('settingsWindow')">
+          ×
+        </button>
+      </div>
+      <div class="window-content">
+        <h3>System Settings</h3>
+        <div
+          style="
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 15px 0;
+          "
+        >
+          <p><strong>OS:</strong> SecureOS 12.4.1</p>
+          <p><strong>User:</strong> client_user</p>
+          <p><strong>Last Login:</strong> 3 days ago</p>
+          <p>
+            <strong>Security Status:</strong>
+            <span style="color: #e74c3c">⚠️ Suspicious Activity Detected</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-window" id="gamesWindow">
+      <div class="window-header">
+        <span>🎮 Games</span>
+        <button class="close-btn" onclick="closeWindow('gamesWindow')">
+          ×
+        </button>
+      </div>
+      <div class="window-content">
+        <h3>Installed Games</h3>
+        <div
+          style="
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 15px 0;
+          "
+        >
+          <p>🎯 Target Practice</p>
+          <p>🧩 Code Puzzle</p>
+          <p>🎲 Mystery Dice</p>
+          <p style="margin-top: 15px; font-style: italic">
+            Games are temporarily disabled during investigation.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password Prompt -->
+    <div class="password-prompt" id="passwordPrompt">
+      <h3>Enter Password</h3>
+      <p id="passwordPromptText">
+        This app is locked. Enter the password to continue:
+      </p>
+      <input
+        type="password"
+        class="password-input"
+        id="passwordInput"
+        placeholder="Password"
+      />
+      <button class="unlock-btn" onclick="checkPassword()">Unlock</button>
+      <button
+        onclick="closePasswordPrompt()"
+        style="
+          background: #e74c3c;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 5px;
+          cursor: pointer;
+          width: 100%;
+          margin-top: 10px;
+        "
+      >
+        Cancel
+      </button>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Game Complete Screen -->
+    <div class="game-complete" id="gameComplete">
+      <h1 style="font-size: 3em; margin-bottom: 20px">🎉 CASE SOLVED! 🎉</h1>
+      <p style="font-size: 1.5em; margin-bottom: 10px">
+        Congratulations, Detective!
+      </p>
+      <p style="font-size: 1.2em">
+        You've successfully identified the kidnapper and their location.
+      </p>
+      <p style="font-size: 1.2em">
+        The authorities have been notified and are on their way!
+      </p>
+      <button
+        onclick="location.reload()"
+        style="
+          margin-top: 30px;
+          padding: 15px 30px;
+          background: #27ae60;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-size: 1.2em;
+          cursor: pointer;
+        "
+      >
+        Play Again
+      </button>
+    </div>
+
+    <script>
+      // Game state
+      let gameState = {
+        notesUnlocked: false,
+        shadowAgentFound: false,
+        ingredientsRevealed: false,
+        encryptedFilePassword: "",
+        kidnapperName: "",
+        location: "",
+        secretCode: "",
+        copEmail: "",
+        gameComplete: false,
+        shopItems: [],
+        bagsBought: 0,
+      };
+
+      // Generate random game data
+      function generateGameData() {
+        const passwords = [
+          "quantum7",
+          "cipher42",
+          "matrix99",
+          "nexus13",
+          "void88",
+        ];
+        const ingredients = [
+          ["sodium chloride", "potassium nitrate", "magnesium oxide"],
+          ["copper sulfate", "iron oxide", "aluminum powder"],
+          ["calcium carbonate", "zinc oxide", "silver nitrate"],
+          ["lithium fluoride", "barium chloride", "titanium dioxide"],
+        ];
+        const names = [
+          "Marcus Vex",
+          "Elena Darkmore",
+          "Viktor Cross",
+          "Raven Blackwood",
+          "Cipher Kane",
+        ];
+        const locations = [
+          "Warehouse District Block 7",
+          "Old Mill Factory Complex",
+          "Abandoned Metro Station Alpha",
+          "Dockyard Facility 12",
+          "Underground Bunker X-7",
+        ];
+        const codes = [
+          "SHADOW-7721",
+          "ECLIPSE-9834",
+          "VORTEX-4412",
+          "NEXUS-8856",
+          "PHANTOM-1123",
+        ];
+        const emails = [
+          "agent.cooper@cyberpol.gov",
+          "detective.silva@taskforce.net",
+          "officer.chen@secure.mil",
+        ];
+
+        gameState.notesPassword =
+          passwords[Math.floor(Math.random() * passwords.length)];
+        gameState.ingredients =
+          ingredients[Math.floor(Math.random() * ingredients.length)];
+        gameState.kidnapperName =
+          names[Math.floor(Math.random() * names.length)];
+        gameState.location =
+          locations[Math.floor(Math.random() * locations.length)];
+        gameState.secretCode = codes[Math.floor(Math.random() * codes.length)];
+        gameState.copEmail = emails[Math.floor(Math.random() * emails.length)];
+        gameState.encryptedFilePassword =
+          "SECURE" + Math.floor(Math.random() * 1000);
+        gameState.shadowOTP = Math.floor(
+          100000 + Math.random() * 900000
+        ).toString();
+
+        // Generate shop items
+        gameState.shopItems = [
+          {
+            name: "Chemical Bag A",
+            price: "$25",
+            ingredient: gameState.ingredients[0],
+          },
+          {
+            name: "Chemical Bag B",
+            price: "$30",
+            ingredient: gameState.ingredients[1],
+          },
+          {
+            name: "Chemical Bag C",
+            price: "$35",
+            ingredient: gameState.ingredients[2],
+          },
+          { name: "Lab Equipment", price: "$45", ingredient: "equipment" },
+          { name: "Safety Gear", price: "$20", ingredient: "safety" },
+          { name: "Documentation Kit", price: "$15", ingredient: "docs" },
+        ];
+      }
+
+      // Intro animation
+      const introText =
+        "CASE FILE #2847 - MISSING PERSON\n\nDr. Sarah Mitchell, a renowned biochemist, disappeared 72 hours ago.\n\nLast seen at her laboratory. Security footage corrupted.\n\nYou've gained access to her personal laptop.\n\nFind clues. Solve the mystery. Locate the victim.\n\nTime is running out, Detective.";
+
+      function typeText(text, element, speed = 50) {
+        let i = 0;
+        element.innerHTML = "";
+
+        function type() {
+          if (i < text.length) {
+            if (text.charAt(i) === "\n") {
+              element.innerHTML += "<br>";
+            } else {
+              element.innerHTML += text.charAt(i);
+            }
+            i++;
+            setTimeout(type, speed);
+          } else {
+            setTimeout(() => {
+              document.getElementById("accessBtn").style.display = "block";
+            }, 1000);
+          }
+        }
+        type();
+      }
+
+      // Initialize game
+      function initGame() {
+        generateGameData();
+        typeText(introText, document.getElementById("typingText"));
+
+        document.getElementById("accessBtn").onclick = function () {
+          document.getElementById("introScreen").style.display = "none";
+          document.getElementById("laptopContainer").style.display = "block";
+          initApps();
+        };
+      }
+
+      function initApps() {
+        // Initialize Files app
+        const filesContent = `
+                <div class="file-item" onclick="openFile('letter.txt')">
+                    <h4>📄 letter.txt</h4>
+                    <p>Unknown sender • 2KB • 3 days ago</p>
+                </div>
+                <div class="file-item" onclick="openFile('encrypted_data.enc')">
+                    <h4>🔒 encrypted_data.enc</h4>
+                    <p>Encrypted file • 15KB • 2 days ago</p>
+                </div>
+                <div class="file-item" onclick="openFile('research_notes.pdf')">
+                    <h4>📋 research_notes.pdf</h4>
+                    <p>Lab notes • 234KB • 1 week ago</p>
+                </div>
+            `;
+        document.getElementById("filesContent").innerHTML = filesContent;
+
+        // Initialize Emails app
+        const emailsContent = `
+                <div class="email-item" onclick="openEmail('work')">
+                    <h4>Work Updates - Lab Director</h4>
+                    <p>Meeting reschedule for project review...</p>
+                    <small>2 days ago</small>
+                </div>
+                <div class="email-item" onclick="openEmail('family')">
+                    <h4>Family Dinner - Mom</h4>
+                    <p>Don't forget about Sunday dinner...</p>
+                    <small>5 days ago</small>
+                </div>
+                <div class="email-item" onclick="openEmail('security')">
+                    <h4>Security Alert - IT Department</h4>
+                    <p>Unusual login activity detected on your account...</p>
+                    <small>4 days ago</small>
+                </div>
+            `;
+        document.getElementById("emailsContent").innerHTML = emailsContent;
+
+        // Initialize Shop app
+        let shopContent = "<h3>SecureShop - Chemical Supplies</h3>";
+        gameState.shopItems.forEach((item, index) => {
+          shopContent += `
+                    <div class="shop-item" id="shopItem${index}" onclick="selectShopItem(${index})">
+                        <div>
+                            <h4>${item.name}</h4>
+                            <p>Contains: ${item.ingredient}</p>
+                        </div>
+                        <div>
+                            <span>${item.price}</span>
+                            <button class="buy-btn" onclick="buyItem(${index}); event.stopPropagation();">Buy</button>
+                        </div>
+                    </div>
+                `;
+        });
+        shopContent +=
+          '<div id="purchaseStatus" style="margin-top: 20px;"></div>';
+        document.getElementById("shopContent").innerHTML = shopContent;
+
+        // Initialize Chat app
+        document.getElementById("chatMessages").innerHTML = `
+                <div class="chat-message" style="background: #e3f2fd; margin: 10px 0; padding: 10px; border-radius: 8px;">
+                    <strong>System:</strong> Welcome to SecureChat. Your contacts will appear online when available.
+                </div>
+            `;
+      }
+
+      // App handlers
+      document.addEventListener("DOMContentLoaded", function () {
+        initGame();
+
+        document.querySelectorAll(".app-icon").forEach((icon) => {
+          icon.addEventListener("click", function () {
+            const app = this.getAttribute("data-app");
+            if (app === "notes" && !gameState.notesUnlocked) {
+              showPasswordPrompt("notes");
+            } else {
+              openApp(app);
+            }
+          });
+        });
+      });
+
+      function openApp(app) {
+        closeAllWindows();
+        document.getElementById(app + "Window").style.display = "flex";
+      }
+
+      function closeWindow(windowId) {
+        document.getElementById(windowId).style.display = "none";
+      }
+
+      function closeAllWindows() {
+        document.querySelectorAll(".app-window").forEach((window) => {
+          window.style.display = "none";
+        });
+      }
+
+      function openFile(filename) {
+        let content = "";
+        let backBtn = `<button onclick=\"showFileList()\" style=\"margin-bottom: 15px; padding: 8px 18px; background: #3498db; color: white; border: none; border-radius: 5px; font-weight: bold;\">← Back</button>`;
+        switch (filename) {
+          case "letter.txt":
+            content = `
+              ${backBtn}
+              <h3>📄 letter.txt</h3>
+              <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; font-family: serif;">
+                  <p><em>Dr. Mitchell,</em></p>
+                  <br>
+                  <p>You're getting too close to the truth. Stop your research immediately or face the consequences.</p>
+                  <br>
+                  <p>If you're reading this, you already know too much. The password to your secure notes is: <strong>${gameState.notesPassword}</strong></p>
+                  <br>
+                  <p>Use it wisely. Time is running out.</p>
+                  <br>
+                  <p><em>- A Friend in the Shadows</em></p>
+              </div>
+              <button onclick="unlockNotes()" style="margin-top: 15px; padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 5px;">Use Password to Unlock Notes</button>
+            `;
+            break;
+          case "encrypted_data.enc":
+            if (gameState.encryptedFilePassword) {
+              content = `
+                ${backBtn}
+                <h3>🔒 encrypted_data.enc</h3>
+                <p>This file is encrypted. Use the terminal to decrypt it with the correct password.</p>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <code>Command: decrypt encrypted_data.enc [password]</code>
+                </div>
+              `;
+            } else {
+              content = `${backBtn}<h3>🔒 encrypted_data.enc</h3><p>File is encrypted and cannot be opened directly.</p>`;
+            }
+            break;
+          case "research_notes.pdf":
+            content = `
+              ${backBtn}
+              <h3>📋 research_notes.pdf</h3>
+              <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                  <h4>Project Nightfall - Biochemical Analysis</h4>
+                  <p><strong>Date:</strong> Last week</p>
+                  <p><strong>Subject:</strong> Advanced molecular compounds</p>
+                  <br>
+                  <p>Initial tests show promising results for the new compound synthesis. However, I'm concerned about potential misuse of this research. Someone has been asking too many questions about my work.</p>
+                  <p><strong>Security Note:</strong> Moved sensitive data to encrypted storage. Only trusted contacts should have access.</p>
+                  <p><strong>Emergency Protocol:</strong> If something happens to me, the truth is in the encrypted files.</p>
+              </div>
+            `;
+            break;
+        }
+        document.getElementById("filesContent").innerHTML = content;
+      }
+
+      // Show file list in Files app
+      function showFileList() {
+        const filesContent = `
+                <div class="file-item" onclick="openFile('letter.txt')">
+                    <h4>📄 letter.txt</h4>
+                    <p>Unknown sender • 2KB • 3 days ago</p>
+                </div>
+                <div class="file-item" onclick="openFile('encrypted_data.enc')">
+                    <h4>🔒 encrypted_data.enc</h4>
+                    <p>Encrypted file • 15KB • 2 days ago</p>
+                </div>
+                <div class="file-item" onclick="openFile('research_notes.pdf')">
+                    <h4>📋 research_notes.pdf</h4>
+                    <p>Lab notes • 234KB • 1 week ago</p>
+                </div>
+            `;
+        document.getElementById("filesContent").innerHTML = filesContent;
+      }
+
+      function openEmail(type) {
+        let content = "";
+        switch (type) {
+          case "work":
+            content = `
+                        <h3>📧 Work Updates</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                            <p><strong>From:</strong> Dr. James Wilson &lt;director@biolab.com&gt;</p>
+                            <p><strong>Subject:</strong> Project Meeting Reschedule</p>
+                            <p><strong>Date:</strong> 2 days ago</p>
+                            <hr>
+                            <p>Sarah,</p>
+                            <p>Due to recent security concerns, we're postponing all project meetings until further notice. Please secure all research materials and avoid working alone in the lab.</p>
+                            <p>Stay safe,</p>
+                            <p>James</p>
+                        </div>
+                    `;
+            break;
+          case "family":
+            content = `
+                        <h3>📧 Family Dinner</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                            <p><strong>From:</strong> Mom &lt;helen.mitchell@email.com&gt;</p>
+                            <p><strong>Subject:</strong> Sunday Dinner</p>
+                            <p><strong>Date:</strong> 5 days ago</p>
+                            <hr>
+                            <p>Sweetie,</p>
+                            <p>Don't forget about Sunday dinner! Your father is making his famous roast. We haven't seen you in weeks. I hope everything is okay with your work.</p>
+                            <p>Love you,</p>
+                            <p>Mom</p>
+                        </div>
+                    `;
+            break;
+          case "security":
+            content = `
+                        <h3>📧 Security Alert</h3>
+                        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                            <p><strong>From:</strong> IT Security &lt;security@biolab.com&gt;</p>
+                            <p><strong>Subject:</strong> ⚠️ Unusual Login Activity</p>
+                            <p><strong>Date:</strong> 4 days ago</p>
+                            <hr>
+                            <p><strong>SECURITY ALERT:</strong></p>
+                            <p>We detected unusual login attempts on your account from an unknown location. If this was not you, please change your password immediately and report this incident.</p>
+                            <p><strong>Login Details:</strong></p>
+                            <p>• Time: 3:47 AM</p>
+                            <p>• Location: Unknown (VPN detected)</p>
+                            <p>• Status: Login attempt failed</p>
+                            <p>Please contact IT Security if you notice any other suspicious activity.</p>
+                        </div>
+                    `;
+            break;
+        }
+        document.getElementById("emailsContent").innerHTML = content;
+      }
+
+      function unlockNotes() {
+        gameState.notesUnlocked = true;
+        document.getElementById("notesApp").classList.remove("locked-app");
+        document.getElementById("notesApp").querySelector(".name").textContent =
+          "Notes";
+        showNotification("Notes app unlocked!");
+
+        // Initialize notes content
+        const notesContent = `
+                <h3>📝 Secure Notes</h3>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                    <h4>🔍 Investigation Log</h4>
+                    <p><strong>Day 1:</strong> Noticed someone following me from the lab.</p>
+                    <p><strong>Day 2:</strong> Found listening device in office. Someone is definitely watching.</p>
+                    <p><strong>Day 3:</strong> Made contact with underground network. Shadow agent in chat app responds to OTP: <strong>${gameState.shadowOTP}</strong></p>
+                </div>
+                <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                    <h4>🚨 Emergency Contacts</h4>
+                    <p><strong>Police Contact:</strong> ${gameState.copEmail}</p>
+                    <p>Only use in case of confirmed threat or location discovery.</p>
+                </div>
+                <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                    <h4>🧪 Research Security</h4>
+                    <p>Moved sensitive formula to encrypted storage. Only way to decrypt is with password obtained from special ingredient purchase sequence.</p>
+                    <p><strong>Required:</strong> Must purchase exactly 3 chemical bags to receive decryption key.</p>
+                </div>
+            `;
+        document.getElementById("notesContent").innerHTML = notesContent;
+      }
+
+      function showPasswordPrompt(app) {
+        document.getElementById("passwordPrompt").style.display = "block";
+        document.getElementById("passwordPrompt").currentApp = app;
+      }
+
+      function closePasswordPrompt() {
+        document.getElementById("passwordPrompt").style.display = "none";
+        document.getElementById("passwordInput").value = "";
+      }
+
+      function checkPassword() {
+        const input = document.getElementById("passwordInput").value;
+        const app = document.getElementById("passwordPrompt").currentApp;
+
+        if (app === "notes" && input === gameState.notesPassword) {
+          gameState.notesUnlocked = true;
+          document.getElementById("notesApp").classList.remove("locked-app");
+          document
+            .getElementById("notesApp")
+            .querySelector(".name").textContent = "Notes";
+          closePasswordPrompt();
+          showNotification("Notes unlocked successfully!");
+          unlockNotes();
+          openApp("notes");
+        } else {
+          showNotification("Incorrect password!", "error");
+          document.getElementById("passwordInput").value = "";
+        }
+      }
+
+      // Terminal functionality
+      function handleTerminalInput(event) {
+        if (event.key === "Enter") {
+          const input = document.getElementById("terminalInput").value;
+          const output = document.getElementById("terminalOutput");
+
+          // Add command to output
+          output.innerHTML += `<div>detective@laptop:~$ ${input}</div>`;
+
+          // Process command
+          processTerminalCommand(input);
+
+          // Clear input
+          document.getElementById("terminalInput").value = "";
+
+          // Scroll to bottom
+          document.getElementById("terminalContent").scrollTop =
+            document.getElementById("terminalContent").scrollHeight;
+        }
+      }
+
+      function processTerminalCommand(command) {
+        const output = document.getElementById("terminalOutput");
+        const parts = command.toLowerCase().split(" ");
+        const cmd = parts[0];
+
+        let response = "";
+
+        switch (cmd) {
+          case "help":
+            response = `
+Available commands:
+  ls          - List files
+  cat [file]  - Display file contents
+  decrypt [file] [password] - Decrypt encrypted files
+  clear       - Clear terminal
+  whoami      - Display current user
+  date        - Show current date
+                    `;
+            break;
+          case "ls":
+            response = `
+encrypted_data.enc
+letter.txt
+research_notes.pdf
+system_logs.txt
+                    `;
+            break;
+          case "whoami":
+            response = "client_user";
+            break;
+          case "date":
+            response = new Date().toString();
+            break;
+          case "clear":
+            output.innerHTML = "";
+            return;
+          case "cat":
+            if (parts[1] === "system_logs.txt") {
+              response = `
+[WARNING] Unauthorized access detected
+[ERROR] Security protocols compromised  
+[INFO] User session: client_user
+[WARNING] Encryption keys accessed
+                        `;
+            } else if (parts[1]) {
+              response = `cat: ${parts[1]}: Permission denied or file not readable in terminal`;
+            } else {
+              response = "Usage: cat [filename]";
+            }
+            break;
+          case "decrypt":
+            if (parts[1] === "encrypted_data.enc" && parts[2]) {
+              if (parts[2] === gameState.encryptedFilePassword.toLowerCase()) {
+                response = `
+Decryption successful!
+================================
+CONFIDENTIAL CASE FILE
+Subject: Dr. Sarah Mitchell
+Status: KIDNAPPED
+Perpetrator: ${gameState.kidnapperName}
+Last Known Activity: Planning to move location
+Additional Intel: Contact shadow network for location details
+================================
+                            `;
+                gameState.kidnapperName = gameState.kidnapperName; // Store for later use
+              } else {
+                response = "Decryption failed: Invalid password";
+              }
+            } else if (parts[1] === "encrypted_data.enc") {
+              response = "Usage: decrypt encrypted_data.enc [password]";
+            } else {
+              response = "File not found or not encrypted";
+            }
+            break;
+          default:
+            response = `Command not found: ${cmd}. Type 'help' for available commands.`;
+        }
+
+        output.innerHTML += `<div>${response}</div><div><br></div>`;
+      }
+
+      // Shop functionality
+      let selectedItems = [];
+
+      function selectShopItem(index) {
+        const item = document.getElementById(`shopItem${index}`);
+        if (selectedItems.includes(index)) {
+          selectedItems = selectedItems.filter((i) => i !== index);
+          item.classList.remove("selected");
+        } else {
+          selectedItems.push(index);
+          item.classList.add("selected");
+        }
+      }
+
+      function buyItem(index) {
+        const item = gameState.shopItems[index];
+        if (
+          item.ingredient === gameState.ingredients[0] ||
+          item.ingredient === gameState.ingredients[1] ||
+          item.ingredient === gameState.ingredients[2]
+        ) {
+          gameState.bagsBought++;
+          showNotification(`Purchased: ${item.name}`);
+
+          // Disable the item
+          document.getElementById(`shopItem${index}`).style.opacity = "0.5";
+          document.getElementById(`shopItem${index}`).style.pointerEvents =
+            "none";
+
+          if (gameState.bagsBought === 3) {
+            setTimeout(() => {
+              showNotification(
+                `All required bags purchased! Decryption password: ${gameState.encryptedFilePassword}`
+              );
+            }, 1000);
+          }
+
+          updatePurchaseStatus();
+        } else {
+          showNotification("This item is not needed for your investigation.");
+        }
+      }
+
+      function updatePurchaseStatus() {
+        const status = document.getElementById("purchaseStatus");
+        status.innerHTML = `
+                <div style="background: #e8f5e8; padding: 15px; border-radius: 8px;">
+                    <h4>Purchase Status</h4>
+                    <p>Chemical bags purchased: ${gameState.bagsBought}/3</p>
+                    ${
+                      gameState.bagsBought === 3
+                        ? `<p style="color: #27ae60;"><strong>✅ Password revealed: ${gameState.encryptedFilePassword}</strong></p>`
+                        : ""
+                    }
+                </div>
+            `;
+      }
+
+      // Chat functionality
+      function sendMessage() {
+        const input = document.getElementById("chatInput");
+        const message = input.value.trim();
+        if (!message) return;
+
+        const messagesDiv = document.getElementById("chatMessages");
+
+        // Add user message
+        messagesDiv.innerHTML += `
+                <div class="chat-message" style="background: #e3f2fd; text-align: right;">
+                    <strong>You:</strong> ${message}
+                </div>
+            `;
+
+        // Process message
+        setTimeout(() => {
+          let response = "";
+
+          if (message === gameState.shadowOTP && !gameState.shadowAgentFound) {
+            gameState.shadowAgentFound = true;
+            response = `Shadow Agent is now online. I can help you with special ingredients: ${gameState.ingredients.join(
+              ", "
+            )}. Purchase these from the shop to proceed.`;
+          } else if (
+            gameState.shadowAgentFound &&
+            message === gameState.kidnapperName
+          ) {
+            response = `Location intel acquired. Search for code: ${gameState.secretCode}`;
+          } else if (gameState.shadowAgentFound) {
+            response =
+              "I can only help with specific requests. Have you completed your purchases?";
+          } else {
+            response =
+              "No contacts available. Try using the correct authentication code.";
+          }
+
+          messagesDiv.innerHTML += `
+                    <div class="chat-message" style="background: #f1f8e9;">
+                        <strong>Shadow Agent:</strong> ${response}
+                    </div>
+                `;
+
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }, 1000);
+
+        input.value = "";
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
+
+      // Browser functionality
+      function searchBrowser() {
+        const query = document.getElementById("browserUrl").value.toLowerCase();
+        const content = document.getElementById("browserContent");
+
+        if (query === gameState.secretCode.toLowerCase()) {
+          content.innerHTML = `
+                    <h3>🔍 Search Results for: ${gameState.secretCode}</h3>
+                    <div style="border: 2px solid #e74c3c; padding: 20px; border-radius: 8px; background: #ffeaa7;">
+                        <h4>⚠️ CLASSIFIED LOCATION INTEL</h4>
+                        <p><strong>Target Location:</strong> ${gameState.location}</p>
+                        <p><strong>Status:</strong> Active</p>
+                        <p><strong>Risk Level:</strong> HIGH</p>
+                        <p><strong>Recommended Action:</strong> Contact law enforcement immediately</p>
+                    </div>
+                    <p style="margin-top: 15px; font-style: italic;">This information should be reported to the authorities immediately.</p>
+                `;
+          gameState.location = gameState.location; // Store for email
+        } else if (
+          query.includes("search") ||
+          query.includes("news") ||
+          query === ""
+        ) {
+          content.innerHTML = `
+                    <h3>SecureNet Search</h3>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                        <h4>Recent News</h4>
+                        <p>• Local scientist reported missing</p>
+                        <p>• Security breach at biotech facility</p>
+                        <p>• Police investigating suspicious activities</p>
+                    </div>
+                    <p style="margin-top: 15px;">Enter a specific search term or code to find more information.</p>
+                `;
+        } else {
+          content.innerHTML = `
+                    <h3>Search Results for: "${query}"</h3>
+                    <p>No results found. Try a different search term.</p>
+                `;
+        }
+      }
+
+      // Email functionality for game completion
+      function sendFinalEmail() {
+        // This would be triggered when user tries to compose email to cop
+        if (gameState.location && gameState.copEmail) {
+          showGameComplete();
+        }
+      }
+
+      // Utility functions
+      function showNotification(message, type = "success") {
+        const notification = document.getElementById("notification");
+        notification.textContent = message;
+        notification.style.background =
+          type === "error" ? "#e74c3c" : "#27ae60";
+        notification.style.display = "block";
+
+        setTimeout(() => {
+          notification.style.display = "none";
+        }, 3000);
+      }
+
+      function showGameComplete() {
+        // Calculate game duration
+        const duration = Date.now() - gameState.gameStartTime;
+        const minutes = Math.floor(duration / 60000);
+        const seconds = Math.floor((duration % 60000) / 1000);
+
+        // Update the final information in the outro screen
+        setTimeout(() => {
+          document.getElementById("finalKidnapperName").textContent =
+            gameState.kidnapperName;
+          document.getElementById("finalLocation").textContent =
+            gameState.location;
+          document.getElementById(
+            "gameDuration"
+          ).textContent = `${minutes}m ${seconds}s`;
+        }, 2000);
+
+        document.getElementById("gameComplete").style.display = "flex";
+      }
+
+      // Enhanced email app to handle sending emails
+      function enhanceEmailApp() {
+        const emailsContent = document.getElementById("emailsContent");
+        emailsContent.innerHTML += `
+                <hr style="margin: 20px 0;">
+                <div style="background: #e8f5e8; padding: 15px; border-radius: 8px;">
+                    <h4>📧 Compose Email</h4>
+                    <input type="email" placeholder="To:" id="emailTo" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                    <input type="text" placeholder="Subject:" id="emailSubject" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                    <textarea placeholder="Message:" id="emailMessage" rows="4" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>
+                    <button onclick="sendEmail()" style="background: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Send Email</button>
+                </div>
+            `;
+      }
+
+      function sendEmail() {
+        const to = document.getElementById("emailTo").value;
+        const subject = document.getElementById("emailSubject").value;
+        const message = document.getElementById("emailMessage").value;
+
+        if (
+          to === gameState.copEmail &&
+          message.toLowerCase().includes(gameState.location.toLowerCase())
+        ) {
+          showNotification("Email sent successfully! Authorities notified!");
+          setTimeout(() => {
+            showGameComplete();
+          }, 2000);
+        } else if (to === gameState.copEmail) {
+          showNotification(
+            "Email sent, but location information may be incomplete."
+          );
+        } else {
+          showNotification("Email sent successfully!");
+        }
+      }
+
+      // Initialize enhanced email app when emails window is opened
+      document.addEventListener("DOMContentLoaded", function () {
+        const originalOpenApp = openApp;
+        openApp = function (app) {
+          originalOpenApp(app);
+          if (app === "emails") {
+            setTimeout(enhanceEmailApp, 100);
+          }
+        };
+      });
+    </script>
+  </body>
+</html>

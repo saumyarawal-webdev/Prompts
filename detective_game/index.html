@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detective Case: The Missing Person</title>
+    <style>
+        /* Basic styles and responsive adjustments */
+        * { margin:0; padding:0; box-sizing:border-box; font-family: monospace; }
+        body { background: #000; color: #0f0; padding: 10px; }
+        .app { display: none; }
+        .app.active { display: block; }
+        button { margin:5px; padding:10px; }
+        @media (max-width: 600px) {
+            .desktop { display: flex; flex-direction: column; }
+            .app-icon { margin: 5px 0; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Detective Laptop Simulator</h1>
+    <button onclick="startGame()">Start Investigation</button>
+
+    <div id="desktop" class="desktop" style="display:none;">
+        <button onclick="openApp('files')">🗂️ Files</button>
+        <button onclick="openApp('emails')">📧 Emails</button>
+        <button onclick="openApp('browser')">🌐 Browser</button>
+        <button onclick="openApp('terminal')">💻 Terminal</button>
+        <button onclick="openApp('notes')">📝 Notes (Locked)</button>
+        <button onclick="openApp('shop')">🛍️ Shop</button>
+        <button onclick="openApp('chat')">💬 Chat</button>
+        <button onclick="openApp('settings')">⚙️ Settings</button>
+        <button onclick="openApp('games')">🎮 Games</button>
+    </div>
+
+    <div id="files" class="app">
+        <h2>Files</h2>
+        <button onclick="readLetter()">Read Letter (Find Notes Password)</button>
+        <button onclick="attemptDecrypt()">Decrypt Secret File</button>
+        <button onclick="closeApp('files')">Close</button>
+        <div id="filesContent"></div>
+    </div>
+
+    <div id="emails" class="app">
+        <h2>Emails</h2>
+        <button onclick="closeApp('emails')">Close</button>
+    </div>
+
+    <div id="browser" class="app">
+        <h2>Browser</h2>
+        <input id="searchInput" placeholder="Search secret code..." />
+        <button onclick="searchCode()">Search</button>
+        <button onclick="closeApp('browser')">Close</button>
+        <div id="browserResult"></div>
+    </div>
+
+    <div id="terminal" class="app">
+        <h2>Terminal</h2>
+        <input id="terminalInput" placeholder="Enter command..." />
+        <button onclick="executeCommand()">Execute</button>
+        <button onclick="closeApp('terminal')">Close</button>
+        <div id="terminalResult"></div>
+    </div>
+
+    <div id="notes" class="app">
+        <h2>Notes (Locked)</h2>
+        <input id="notesPasswordInput" placeholder="Enter notes password..." />
+        <button onclick="unlockNotes()">Unlock</button>
+        <button onclick="closeApp('notes')">Close</button>
+        <div id="notesContent"></div>
+    </div>
+
+    <div id="shop" class="app">
+        <h2>Shop</h2>
+        <button onclick="orderBag()">Order Mystery Bag</button>
+        <button onclick="closeApp('shop')">Close</button>
+        <div id="shopContent"></div>
+    </div>
+
+    <div id="chat" class="app">
+        <h2>Chat App</h2>
+        <input id="chatInput" placeholder="Type OTP or name..." />
+        <button onclick="sendChatMessage()">Send</button>
+        <button onclick="closeApp('chat')">Close</button>
+        <div id="chatMessages"></div>
+    </div>
+
+    <div id="settings" class="app">
+        <h2>Settings (Non-core)</h2>
+        <button onclick="closeApp('settings')">Close</button>
+    </div>
+
+    <div id="games" class="app">
+        <h2>Games (Non-core)</h2>
+        <button onclick="closeApp('games')">Close</button>
+    </div>
+
+    <script>
+        let gameConfig = {};
+        let bagsOrdered = 0;
+        let notesUnlocked = false;
+        let fileDecrypted = false;
+        let kidnapperName = '';
+        let secretCode = '';
+        let clientLocation = '';
+        let notesPassword = '';
+        let otpCode = '';
+        let filePassword = '';
+
+        function generateRandomString(length = 8) {
+            return Math.random().toString(36).substring(2, 2 + length).toUpperCase();
+        }
+
+        function generateRandomNumber(length = 4) {
+            return Math.floor(Math.random() * (Math.pow(10, length))).toString().padStart(length, '0');
+        }
+
+        function startGame() {
+            document.getElementById('desktop').style.display = 'block';
+            gameConfig.notesPassword = generateRandomString(6);
+            gameConfig.otpCode = generateRandomNumber(4);
+            gameConfig.ingredients = ['Bag A', 'Bag B', 'Bag C'];
+            gameConfig.filePassword = generateRandomString(8);
+            gameConfig.kidnapperName = ['John Doe', 'Jane Roe', 'Marcus Blackwood'][Math.floor(Math.random()*3)];
+            gameConfig.secretCode = generateRandomString(10);
+            gameConfig.clientLocation = ['Abandoned Warehouse', 'Underground Bunker', 'Hidden Cabin'][Math.floor(Math.random()*3)];
+            console.log('Generated config:', gameConfig);
+        }
+
+        function openApp(appId) {
+            document.querySelectorAll('.app').forEach(a => a.classList.remove('active'));
+            document.getElementById(appId).classList.add('active');
+        }
+
+        function closeApp(appId) {
+            document.getElementById(appId).classList.remove('active');
+        }
+
+        function readLetter() {
+            document.getElementById('filesContent').innerText = 'Letter Content:\nNotes Password: ' + gameConfig.notesPassword;
+        }
+
+        function unlockNotes() {
+            const input = document.getElementById('notesPasswordInput').value;
+            if (input === gameConfig.notesPassword) {
+                notesUnlocked = true;
+                document.getElementById('notesContent').innerText = 'Shadow Agent waits for OTP: ' + gameConfig.otpCode + '.
+Police Contact: officer.martinez@police.gov';
+            } else {
+                document.getElementById('notesContent').innerText = 'Incorrect password.';
+            }
+        }
+
+        function orderBag() {
+            bagsOrdered++;
+            document.getElementById('shopContent').innerText += 'Bag ordered. Total bags: ' + bagsOrdered + '\n';
+            if (bagsOrdered === 3) {
+                document.getElementById('shopContent').innerText += 'Decryption Password Revealed: ' + gameConfig.filePassword;
+            }
+        }
+
+        function executeCommand() {
+            const input = document.getElementById('terminalInput').value;
+            if (input === 'decrypt file.enc ' + gameConfig.filePassword) {
+                fileDecrypted = true;
+                document.getElementById('terminalResult').innerText = 'Kidnapper Identified: ' + gameConfig.kidnapperName;
+            } else {
+                document.getElementById('terminalResult').innerText = 'Command not recognized or incorrect password.';
+            }
+        }
+
+        function sendChatMessage() {
+            const message = document.getElementById('chatInput').value;
+            if (message === gameConfig.otpCode) {
+                document.getElementById('chatMessages').innerText += '\nShadow Agent: Ingredients - ' + gameConfig.ingredients.join(', ');
+            } else if (message === gameConfig.kidnapperName) {
+                document.getElementById('chatMessages').innerText += '\nShadow Agent: Secret Code - ' + gameConfig.secretCode;
+            } else {
+                document.getElementById('chatMessages').innerText += '\nShadow Agent: I don't understand.';
+            }
+        }
+
+        function searchCode() {
+            const input = document.getElementById('searchInput').value;
+            if (input === gameConfig.secretCode) {
+                document.getElementById('browserResult').innerText = 'Client Location Found: ' + gameConfig.clientLocation;
+            } else {
+                document.getElementById('browserResult').innerText = 'No results found.';
+            }
+        }
+    </script>
+</body>
+</html>
