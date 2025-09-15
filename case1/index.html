@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detective Game: The Kidnapping Case</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            color: white;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: #000;
+            font-size: 14px;
+        }
+        
+        .app-container {
+            height: 600px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            transition: transform 0.3s ease;
+            background-color: #121212;
+            overflow-y: auto;
+        }
+        
+        .home-screen {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            padding: 30px 20px;
+        }
+        
+        .app-icon {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .app-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        .app-icon div {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            margin: 0 auto 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+        
+        .chat-app { background: linear-gradient(135deg, #00b09b, #96c93d); }
+        .notes-app { background: linear-gradient(135deg, #8E2DE2, #4A00E0); }
+        .booking-app { background: linear-gradient(135deg, #ff5e62, #ff9966); }
+        
+        .hidden {
+            transform: translateX(100%);
+        }
+        
+        .app-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .chat-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+        
+        .received {
+            background-color: #333;
+            align-self: flex-start;
+        }
+        
+        .sent {
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        input, button {
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            margin: 10px 0;
+        }
+        
+        input {
+            background-color: #222;
+            color: white;
+            width: 100%;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        .note {
+            background-color: #222;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .note:hover {
+            transform: translateX(5px);
+        }
+        
+        .note-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #96c93d;
+        }
+        
+        .show-item {
+            background-color: #222;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .show-title {
+            font-weight: bold;
+            color: #ff9966;
+        }
+        
+        .intro-screen {
+            text-align: center;
+        }
+        
+        .intro-screen h1 {
+            margin: 20px 0;
+            color: #ff9966;
+        }
+        
+        .intro-screen p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .credits {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .credits h2 {
+            margin-bottom: 20px;
+            color: #96c93d;
+        }
+        
+        .credits button {
+            margin-top: 20px;
+        }
+        
+        .notification {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ff9966;
+            color: black;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 100;
+            display: none;
+        }
+        
+        .code-number {
+            color: #ff9966;
+            font-weight: bold;
+        }
+        
+        .chat-list {
+            list-style-type: none;
+        }
+        
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+        }
+        
+        .chat-item:hover {
+            background-color: #222;
+        }
+        
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            margin-right: 15px;
+        }
+        
+        .chat-info {
+            flex: 1;
+        }
+        
+        .chat-name {
+            font-weight: bold;
+        }
+        
+        .chat-preview {
+            color: #aaa;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+        
+        .note-content {
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+        
+        .note-locked {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        .note-locked-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>Mobile Network</span>
+            <span>100%</span>
+        </div>
+        
+        <div class="app-container">
+            <!-- Intro Screen -->
+            <div class="screen intro-screen">
+                <h1>The Kidnapping Case</h1>
+                <p>You are Detective Alex, hired to find a kidnapped client. The only clue is the client's mobile phone.</p>
+                <p>You need to investigate the chat app to find clues for the notes app password, which contains the password for the booking app.</p>
+                <p>The booking app will show the last location of the client. Find it and send it to the agent to solve the case.</p>
+                <button id="start-game">Start Investigation</button>
+            </div>
+            
+            <!-- Home Screen -->
+            <div class="screen home-screen hidden">
+                <div class="app-icon" data-app="chat">
+                    <div class="chat-app">💬</div>
+                    <span>Messages</span>
+                </div>
+                <div class="app-icon" data-app="notes">
+                    <div class="notes-app">📝</div>
+                    <span>Notes</span>
+                </div>
+                <div class="app-icon" data-app="booking">
+                    <div class="booking-app">🎭</div>
+                    <span>BookMyShow</span>
+                </div>
+            </div>
+            
+            <!-- Chat List Screen -->
+            <div class="screen chat-list-screen hidden">
+                <div class="app-header">
+                    <button class="back-button">←</button>
+                    <h2>Messages</h2>
+                </div>
+                <ul class="chat-list" id="chat-list">
+                    <!-- Chat items will be dynamically generated -->
+                </ul>
+            </div>
+            
+            <!-- Individual Chat Screen -->
+            <div class="screen chat-screen hidden">
+                <div class="app-header">
+                    <button class="back-button">←</button>
+                    <h2 id="chat-title">Chat</h2>
+                </div>
+                <div class="chat-container" id="chat-messages">
+                    <!-- Chat messages will be dynamically generated -->
+                </div>
+                <input type="text" id="message-input" placeholder="Type message...">
+                <button id="send-message">Send</button>
+            </div>
+            
+            <!-- Notes List Screen -->
+            <div class="screen notes-list-screen hidden">
+                <div class="app-header">
+                    <button class="back-button">←</button>
+                    <h2>Notes</h2>
+                </div>
+                <div id="notes-list">
+                    <!-- Notes will be dynamically generated -->
+                </div>
+            </div>
+            
+            <!-- Individual Note Screen -->
+            <div class="screen note-screen hidden">
+                <div class="app-header">
+                    <button class="back-button">←</button>
+                    <h2 id="note-title">Note</h2>
+                </div>
+                <div id="note-content">
+                    <!-- Note content will be dynamically generated -->
+                </div>
+            </div>
+            
+            <!-- Locked Note Screen -->
+            <div class="screen locked-note-screen hidden">
+                <div class="app-header">
+                    <button class="back-button">←</button>
+                    <h2>Secret Note</h2>
+                </div>
+                <div class="note-locked">
+                    <div class="note-locked-icon">🔒</div>
+                    <p>This note is locked with a password</p>
+                    <input type="password" id="note-password" placeholder="Enter password">
+                    <button id="unlock-note">Unlock</button>
+                </div>
+            </div>
+            
+            <!-- Booking App -->
+            <div class="screen booking-app-screen hidden">
+                <div class="app-header">
+                    <button class="back-button">←</button>
+                    <h2>BookMyShow</h2>
+                </div>
+                <input type="password" id="booking-password-input" placeholder="Enter password">
+                <button id="unlock-booking">Unlock</button>
+                <div class="unlocked-content" style="display: none;">
+                    <div id="show-list">
+                        <!-- Show items will be dynamically generated -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Credits Screen -->
+            <div class="screen credits hidden">
+                <h2>Case Solved!</h2>
+                <p>You found the location and saved the client!</p>
+                <p>Made by Saumya</p>
+                <button id="play-again">Play Again</button>
+            </div>
+        </div>
+        
+        <div class="notification" id="notification"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const screens = document.querySelectorAll('.screen');
+            const startGameBtn = document.getElementById('start-game');
+            const appIcons = document.querySelectorAll('.app-icon');
+            const backButtons = document.querySelectorAll('.back-button');
+            const unlockNoteBtn = document.getElementById('unlock-note');
+            const unlockBookingBtn = document.getElementById('unlock-booking');
+            const sendMessageBtn = document.getElementById('send-message');
+            const notePasswordInput = document.getElementById('note-password');
+            const bookingPasswordInput = document.getElementById('booking-password-input');
+            const messageInput = document.getElementById('message-input');
+            const playAgainBtn = document.getElementById('play-again');
+            const notification = document.getElementById('notification');
+            const chatList = document.getElementById('chat-list');
+            const notesList = document.getElementById('notes-list');
+            
+            // Game state
+            let notesPassword = 0;
+            let bookingPassword = "";
+            let lastLocation = "";
+            let codeNumbers = [];
+            let currentChat = null;
+            let currentNote = null;
+            
+            // Initialize the game
+            function initGame() {
+                // Reset UI elements
+                document.querySelectorAll('.unlocked-content').forEach(el => {
+                    el.style.display = 'none';
+                });
+                notePasswordInput.value = '';
+                bookingPasswordInput.value = '';
+                messageInput.value = '';
+                chatList.innerHTML = '';
+                notesList.innerHTML = '';
+                
+                // Generate 4 random numbers for the chat
+                codeNumbers = [
+                    Math.floor(Math.random() * 20) + 1,
+                    Math.floor(Math.random() * 20) + 1,
+                    Math.floor(Math.random() * 20) + 1,
+                    Math.floor(Math.random() * 20) + 1
+                ];
+                
+                // Calculate notes password (sum of numbers)
+                notesPassword = codeNumbers.reduce((sum, num) => sum + num, 0);
+                
+                // Generate random booking password
+                bookingPassword = generatePassword(4);
+                
+                // Generate random shows with locations
+                const shows = [
+                    { title: "Avengers: Endgame", location: randomLocation(), date: randomPastDate(30) },
+                    { title: "Dune: Part Two", location: randomLocation(), date: randomPastDate(20) },
+                    { title: "John Wick 4", location: randomLocation(), date: randomPastDate(15) },
+                    { title: "Oppenheimer", location: randomLocation(), date: randomPastDate(5) }
+                ];
+                
+                // Set last location (from the last show)
+                lastLocation = shows[shows.length - 1].location;
+                
+                // Generate chats
+                generateChats();
+                
+                // Generate notes
+                generateNotes();
+                
+                // Generate shows for booking app
+                generateShows(shows);
+            }
+            
+            // Generate chat list with multiple contacts
+            function generateChats() {
+                const contacts = [
+                    { name: "John", avatar: "J", messages: generateJohnMessages() },
+                    { name: "Agent Smith", avatar: "A", messages: generateAgentMessages() },
+                    { name: "Mom", avatar: "M", messages: generateMomMessages() },
+                    { name: "Sarah", avatar: "S", messages: generateSarahMessages() },
+                    { name: "David", avatar: "D", messages: generateDavidMessages() }
+                ];
+                
+                contacts.forEach(contact => {
+                    const chatItem = document.createElement('li');
+                    chatItem.className = 'chat-item';
+                    chatItem.dataset.contact = contact.name;
+                    chatItem.innerHTML = `
+                        <div class="chat-avatar">${contact.avatar}</div>
+                        <div class="chat-info">
+                            <div class="chat-name">${contact.name}</div>
+                            <div class="chat-preview">${contact.messages[contact.messages.length - 1].text}</div>
+                        </div>
+                    `;
+                    chatItem.addEventListener('click', () => openChat(contact));
+                    chatList.appendChild(chatItem);
+                });
+            }
+            
+            // Generate messages for John
+            function generateJohnMessages() {
+                return [
+                    { text: "Hey, remember the codes we used? They might be useful for your notes.", sender: "John", received: true },
+                    { text: `First number: <span class="code-number">${codeNumbers[0]}</span>`, sender: "John", received: true },
+                    { text: `Second number: <span class="code-number">${codeNumbers[1]}</span>`, sender: "John", received: true },
+                    { text: `Third number: <span class="code-number">${codeNumbers[2]}</span>`, sender: "John", received: true },
+                    { text: `Fourth number: <span class="code-number">${codeNumbers[3]}</span>`, sender: "John", received: true },
+                    { text: "Add them up and use the sum to unlock your secret note.", sender: "John", received: true }
+                ];
+            }
+            
+            // Generate messages for Agent
+            function generateAgentMessages() {
+                return [
+                    { text: "We need to find the client immediately! Time is running out.", sender: "Agent", received: true },
+                    { text: "Check their recent activities and find their last location.", sender: "Agent", received: true },
+                    { text: "Let me know as soon as you find something.", sender: "Agent", received: true }
+                ];
+            }
+            
+            // Generate random messages for other contacts
+            function generateMomMessages() {
+                return [
+                    { text: "How are you doing, honey? Haven't heard from you in a while.", sender: "Mom", received: true },
+                    { text: "Are you coming for dinner on Sunday?", sender: "Mom", received: true }
+                ];
+            }
+            
+            function generateSarahMessages() {
+                return [
+                    { text: "Hey, are we still on for coffee tomorrow?", sender: "Sarah", received: true },
+                    { text: "Let me know what time works for you.", sender: "Sarah", received: true }
+                ];
+            }
+            
+            function generateDavidMessages() {
+                return [
+                    { text: "Did you finish the report for the meeting?", sender: "David", received: true },
+                    { text: "I need it by tomorrow morning.", sender: "David", received: true }
+                ];
+            }
+            
+            // Generate notes with various content
+            function generateNotes() {
+                const notes = [
+                    { title: "Shopping List", content: "Milk, Eggs, Bread, Coffee, Fruits", locked: false },
+                    { title: "Meeting Notes", content: "Meeting with clients on Friday at 2 PM. Don't forget the presentation.", locked: false },
+                    { title: "Ideas", content: "Project ideas: Mobile app for fitness, Website for local business, Game development", locked: false },
+                    { title: "Secret", content: `The password for BookMyShow is: <strong>${bookingPassword}</strong>`, locked: true },
+                    { title: "Passwords", content: "Email: abc123, Bank: 987xyz, Social media: pass321", locked: false }
+                ];
+                
+                notes.forEach(note => {
+                    const noteElement = document.createElement('div');
+                    noteElement.className = 'note';
+                    noteElement.innerHTML = `
+                        <div class="note-title">${note.title}</div>
+                        <div>${note.locked ? 'Locked' : note.content.substring(0, 30) + '...'}</div>
+                    `;
+                    noteElement.addEventListener('click', () => openNote(note));
+                    notesList.appendChild(noteElement);
+                });
+            }
+            
+            // Generate shows for booking app
+            function generateShows(shows) {
+                const showList = document.getElementById('show-list');
+                showList.innerHTML = '';
+                
+                shows.forEach(show => {
+                    const showItem = document.createElement('div');
+                    showItem.className = 'show-item';
+                    showItem.innerHTML = `
+                        <div class="show-title">${show.title}</div>
+                        <div>${show.location}</div>
+                        <div>${show.date}</div>
+                    `;
+                    showList.appendChild(showItem);
+                });
+            }
+            
+            // Open a chat with a contact
+            function openChat(contact) {
+                currentChat = contact;
+                const chatMessages = document.getElementById('chat-messages');
+                const chatTitle = document.getElementById('chat-title');
+                
+                chatTitle.textContent = contact.name;
+                chatMessages.innerHTML = '';
+                
+                contact.messages.forEach(message => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `chat-message ${message.received ? 'received' : 'sent'}`;
+                    messageDiv.innerHTML = `<strong>${message.sender}:</strong> ${message.text}`;
+                    chatMessages.appendChild(messageDiv);
+                });
+                
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                showScreen(3); // Individual chat screen
+            }
+            
+            // Open a note
+            function openNote(note) {
+                currentNote = note;
+                
+                if (note.locked) {
+                    showScreen(7); // Locked note screen
+                } else {
+                    const noteTitle = document.getElementById('note-title');
+                    const noteContent = document.getElementById('note-content');
+                    
+                    noteTitle.textContent = note.title;
+                    noteContent.innerHTML = `<div class="note-content">${note.content}</div>`;
+                    showScreen(6); // Individual note screen
+                }
+            }
+            
+            // Generate a random password
+            function generatePassword(length) {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let result = '';
+                for (let i = 0; i < length; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            }
+            
+            // Generate a random location
+            function randomLocation() {
+                const theaters = ['City Cinema', 'Star Theater', 'Actionplex', 'IMAX Theater', 'Grand Theater', 'Plaza Cinema'];
+                const areas = ['Downtown', 'Midtown', 'West End', 'City Center', 'Uptown', 'East Side'];
+                return `${theaters[Math.floor(Math.random() * theaters.length)]}, ${areas[Math.floor(Math.random() * areas.length)]}`;
+            }
+            
+            // Generate a random past date
+            function randomPastDate(daysAgo) {
+                const date = new Date();
+                date.setDate(date.getDate() - Math.floor(Math.random() * daysAgo) + 1);
+                return date.toLocaleDateString();
+            }
+            
+            // Show a notification
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Switch between screens
+            function showScreen(screenIndex) {
+                screens.forEach((screen, index) => {
+                    if (index === screenIndex) {
+                        screen.classList.remove('hidden');
+                    } else {
+                        screen.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Event Listeners
+            startGameBtn.addEventListener('click', () => {
+                initGame();
+                showScreen(1); // Home screen
+            });
+            
+            appIcons.forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const app = icon.getAttribute('data-app');
+                    if (app === 'chat') showScreen(2); // Chat list screen
+                    else if (app === 'notes') showScreen(5); // Notes list screen
+                    else if (app === 'booking') showScreen(8); // Booking app screen
+                });
+            });
+            
+            backButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Determine which screen to go back to based on current screen
+                    if (document.querySelector('.chat-screen:not(.hidden)')) {
+                        showScreen(2); // Back to chat list
+                    } else if (document.querySelector('.note-screen:not(.hidden)') || 
+                               document.querySelector('.locked-note-screen:not(.hidden)')) {
+                        showScreen(5); // Back to notes list
+                    } else {
+                        showScreen(1); // Back to home screen
+                    }
+                });
+            });
+            
+            unlockNoteBtn.addEventListener('click', () => {
+                if (parseInt(notePasswordInput.value) === notesPassword) {
+                    // Show the secret note content
+                    const noteTitle = document.getElementById('note-title');
+                    const noteContent = document.getElementById('note-content');
+                    
+                    noteTitle.textContent = "Secret";
+                    noteContent.innerHTML = `<div class="note-content">${currentNote.content}</div>`;
+                    showScreen(6); // Individual note screen
+                } else {
+                    showNotification('Incorrect password!');
+                }
+            });
+            
+            unlockBookingBtn.addEventListener('click', () => {
+                if (bookingPasswordInput.value === bookingPassword) {
+                    document.querySelector('.booking-app-screen .unlocked-content').style.display = 'block';
+                    showNotification('BookMyShow unlocked!');
+                } else {
+                    showNotification('Incorrect password!');
+                }
+            });
+            
+            sendMessageBtn.addEventListener('click', () => {
+                const message = messageInput.value;
+                if (currentChat && currentChat.name === "Agent Smith" && 
+                    message.toLowerCase().includes(lastLocation.toLowerCase())) {
+                    showScreen(9); // Credits screen
+                } else if (currentChat && currentChat.name === "Agent Smith") {
+                    showNotification('Agent: This is not the correct location!');
+                } else {
+                    showNotification('Message sent!');
+                }
+                messageInput.value = '';
+            });
+            
+            playAgainBtn.addEventListener('click', () => {
+                showScreen(0); // Intro screen
+            });
+            
+            // Initialize with intro screen
+            showScreen(0);
+        });
+    </script>
+</body>
+</html>
