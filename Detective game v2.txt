@@ -1,0 +1,45 @@
+Build a detective game in which player will be detective having laptop of client.
+
+intro game : retro animation text to explain the scenario, and access machine button.
+
+Laptop will have apps :
+
+🗂️ Files
+
+📧 Emails
+
+🌐 Browser
+
+💻 Terminal
+
+📝 Notes App
+
+🛍️ Shop App
+
+💬 Chat App
+
+⚙️ Settings
+
+🎮 Games
+
+all app will be working.
+
+so firstly:
+
+notes app will be locked.
+
+in files some letter.txt from unknown person will reveal notes app password.
+
+notes will reveal that in chat app there is shadow agent who will accept the following otp and reveal indrediants to order.
+
+and on ordering 3 bags from shop will reveal password of encrypted file.
+
+which can be decrypted using terminal using command and giving that password,
+
+that file will reveal the name of kidnapper but location is still remaining.
+
+by sending that name to shadow agent in chat app, that will reveal the secret code, searching that code on browser will reveal location.
+
+and in notes app there is one cop agents email id.
+
+and in that when that location is sent to that mail the game ends!

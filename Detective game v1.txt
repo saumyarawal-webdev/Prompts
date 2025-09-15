@@ -1,0 +1,19 @@
+lets build a detective game.
+
+which will simulate client mobile to detective, user, player of game.
+
+now there will be apps: chat app, notes app, book my show app.
+
+players main task is unloack book my show app using correct password in order to find current location of client.
+
+so in chat app there are so many chats, but the chat with john will reveal password of notes app like revealing numbers in way that sum of that willbe  password of notes app, and notes app is containing book my show app password.
+
+so in chat, sum should be : 3740
+
+and in notes app book my show password will be : 5439
+
+and in there all booked previous shows will be listed, with location, but last the latest one will be NY Cinema, Chandkheda Ahmedabad.
+
+after the location is found, then end the game with credits : Made by Saumya.
+
+and before starting the game describe the whole situation that player is detective, and its client is kidnapped so they have to find the last location, that way add smooth intro to game and then start the game.
